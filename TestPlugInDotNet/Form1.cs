@@ -21,7 +21,7 @@ namespace TestPlugInDotNet
         private void button1_Click(object sender, EventArgs e)
         {
             Huffman.HuffmanData datas = new Huffman.HuffmanData();
-            datas.uncompressedData = Encoding.ASCII.GetBytes("azerab");
+            datas.uncompressedData = Encoding.ASCII.GetBytes("azebbbbrab");
             PlugInDotNet.PlugInDotNet p = new PlugInDotNet.PlugInDotNet();
             p.Compress(ref datas);
 
@@ -29,7 +29,8 @@ namespace TestPlugInDotNet
 
             foreach (KeyValuePair<byte, int> kvp in datas.frequency)
             {
-                System.Console.WriteLine(Encoding.ASCII.Get(kvp.Key) + " - " + Convert.ToString(kvp.Value));
+                byte[] tabByte = { kvp.Key };
+                System.Console.WriteLine(Encoding.ASCII.GetString(tabByte) + " - " + Convert.ToString(kvp.Value));
             }
         }
     }
