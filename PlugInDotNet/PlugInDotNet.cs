@@ -92,7 +92,7 @@ namespace PlugInDotNet
                 newNode.Add(nodes[0]);
                 newNode.Add(nodes[1]);
                 nodes.Remove(nodes[0]);
-                nodes.Remove(nodes[1]);
+                nodes.Remove(nodes[0]);
 
                 nodes.Add(newNode);
 
@@ -103,7 +103,6 @@ namespace PlugInDotNet
         
         public void CheckSaMere(Node node)
         {
-            Console.WriteLine(Object.ReferenceEquals(node.GetType(), typeof(Occurence))); 
             if (Object.ReferenceEquals(node.GetType(), typeof(Occurence)))
             {
                 Console.WriteLine(node.GetValue());

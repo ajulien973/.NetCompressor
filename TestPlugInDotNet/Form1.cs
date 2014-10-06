@@ -21,7 +21,7 @@ namespace TestPlugInDotNet
         private void button1_Click(object sender, EventArgs e)
         {
             Huffman.HuffmanData datas = new Huffman.HuffmanData();
-            datas.uncompressedData = Encoding.ASCII.GetBytes("azebbbbrab");
+            datas.uncompressedData = Encoding.ASCII.GetBytes("ffffffaaaaaaaaaabbbbbbbbbbddddddddddddddddccccccccccccccccccccccccceeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
             PlugInDotNet.PlugInDotNet p = new PlugInDotNet.PlugInDotNet();
             p.Compress(ref datas);
 
