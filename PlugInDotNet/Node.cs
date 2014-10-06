@@ -27,6 +27,11 @@ namespace PlugInDotNet
         {
             return this.kvp.Value;
         }
+
+        public KeyValuePair<byte, int> GetKVP()
+        {
+            return kvp;
+        }
     }
 
     // Directory implements the "lowest common denominator"

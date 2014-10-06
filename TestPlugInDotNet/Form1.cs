@@ -11,27 +11,38 @@ using PlugInDotNet;
 
 namespace TestPlugInDotNet
 {
-    public partial class Form1 : Form
+    public partial class pluginDotNet : Form
     {
-        public Form1()
+        private PlugInDotNet.PlugInDotNet p;
+        private Huffman.HuffmanData datas;
+
+        public pluginDotNet()
         {
             InitializeComponent();
+            this.p = new PlugInDotNet.PlugInDotNet();
+            this.datas = new Huffman.HuffmanData();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void b_for_compression_Click(object sender, EventArgs e)
         {
-            Huffman.HuffmanData datas = new Huffman.HuffmanData();
-            datas.uncompressedData = Encoding.ASCII.GetBytes("ffffffaaaaaaaaaabbbbbbbbbbddddddddddddddddccccccccccccccccccccccccceeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-            PlugInDotNet.PlugInDotNet p = new PlugInDotNet.PlugInDotNet();
-            p.Compress(ref datas);
-
+            this.datas.uncompressedData = Encoding.ASCII.GetBytes(rtb_for_compression.Text);
+            this.p.Compress(ref datas);
+            //rtb_for_compressed.Text = Encoding.ASCII.GetString(datas.compressedData);
+            /*
             System.Console.WriteLine(Encoding.ASCII.GetString(datas.uncompressedData));
 
             foreach (KeyValuePair<byte, int> kvp in datas.frequency)
             {
                 byte[] tabByte = { kvp.Key };
                 System.Console.WriteLine(Encoding.ASCII.GetString(tabByte) + " - " + Convert.ToString(kvp.Value));
-            }
+            }*/
+            // ffffffaaaaaaaaaabbbbbbbbbbddddddddddddddddccccccccccccccccccccccccceeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+        }
+
+        private void b_for_decompression_Click(object sender, EventArgs e)
+        {
+            this.p.Decompress(ref datas);
+            rtb_for_decompression.Text = Encoding.ASCII.GetString(this.datas.uncompressedData);            
         }
     }
 }

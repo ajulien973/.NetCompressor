@@ -40,12 +40,22 @@ namespace PlugInDotNet
             }
 
             GetTree(ref nodes);
-            
-            foreach (Node n in nodes)
+
+            /*foreach (Node n in nodes)
             {
                 CheckSaMere(n);
+            }*/
+
+            List<KeyValuePair<byte, string>> l_kvp = new List<KeyValuePair<byte, string>>();
+
+            GetHuffmanCode("", nodes[0], ref l_kvp);
+
+            foreach (KeyValuePair<byte, string> kvp in l_kvp)
+            {
+                byte[] tabByte = { kvp.Key };
+                Console.Write("(" + kvp.Value + " - " + Encoding.ASCII.GetString(tabByte) + ")");
             }
-            
+            Console.WriteLine("");
 
             return r;
         }
@@ -58,6 +68,7 @@ namespace PlugInDotNet
         public string PluginName {
             get { return "";  }
         }
+
 
         public void SortList(ref List<Node> nodes) 
         {
@@ -89,11 +100,13 @@ namespace PlugInDotNet
 
                 // Création d'une nouvelle branche (sum)
                 Sum newNode = new Sum();
+                // On ajoute les deux liens à cette nouvelle branche
                 newNode.Add(nodes[0]);
                 newNode.Add(nodes[1]);
+                // On supprime de la liste les deux liens 
                 nodes.Remove(nodes[0]);
                 nodes.Remove(nodes[0]);
-
+                // On ajoute la nouvelle branche
                 nodes.Add(newNode);
 
                 // On récursive jusqu'à en avoir plus que 1 objet dans la liste
@@ -113,6 +126,27 @@ namespace PlugInDotNet
                 CheckSaMere(((Node)al[0]));
                 CheckSaMere(((Node)al[1]));
             }
+        }
+
+        public /*List<KeyValuePair<byte, byte>>*/void GetHuffmanCode(string way, Node node, ref List<KeyValuePair<byte, string>> l_kvp)
+        {
+
+            if (Object.ReferenceEquals(node.GetType(), typeof(Sum)))
+            {
+                ArrayList al = ((Sum)node).GetNodes();
+                GetHuffmanCode(way + "0", ((Node)al[0]), ref l_kvp);
+                GetHuffmanCode(way + "1", ((Node)al[1]), ref l_kvp);
+
+            }
+            else
+            {
+                Occurence o = (Occurence) node;
+                l_kvp.Add(new KeyValuePair<byte, string>(o.GetKVP().Key, way));
+            }
+            /*List<KeyValuePair<byte, byte>> l_kvp = new List<KeyValuePair<byte, byte>>();
+            byte b = ;
+
+            return l_kvp;*/
         }
     }
 }
