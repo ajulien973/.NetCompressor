@@ -65,6 +65,8 @@ namespace PlugInDotNet
 
             CompressData(ref data, ref l_kvp);
 
+            data.uncompressedData = null;
+
             return true;
         }
 
@@ -93,35 +95,10 @@ namespace PlugInDotNet
             get { return "";  }
         }
 
-
-        public void SortList(ref List<Node> nodes) 
-        {
-            bool swapped = true;
-            int j = 0;
-            Node tmp;
-            while (swapped) {
-                swapped = false;
-                j++;        
-                for (int i = 0; i < nodes.Count - j; i++)
-                {
-                    if (nodes[i].GetValue() > nodes[i + 1].GetValue())
-                    {
-                        tmp = nodes[i];
-                        nodes[i] = nodes[i + 1];
-                        nodes[i + 1] = tmp;
-                        swapped = true;
-                    }
-                }        
-            }
-        }
-
         public void GetTree(ref List<Node> nodes)
         {
             if (nodes.Count > 1)
             {
-                // Tri tableau
-                //SortList(ref nodes);
-
                 int i = 2;
                 int i1;
                 int i2;
@@ -223,8 +200,15 @@ namespace PlugInDotNet
                 l.AddRange(GetValueOfKeyInList(ref huffman, b));
             }
 
+            int end = 8 - l.Count % 8;
+
+            for (int i = 0; i < end; i++)
+            {
+                l.Add(false);
+            }
+
             compressed = new BitArray(l.ToArray());
-            int nb = l.Count / 8 + 1;
+            int nb = l.Count / 8;
             data.compressedData = new byte[nb];
             compressed.CopyTo(data.compressedData, 0);
         }
@@ -235,25 +219,29 @@ namespace PlugInDotNet
             {
                 for (int i = 0; i < l1.Count; i++)
                 {
-                    if (l1[i] != l2[i])
+                    if (l1[i] && !l2[i])
+                    {
+                        return false;
+                    }
+
+                    if (!l1[i] && l2[i])
                     {
                         return false;
                     }
                 }
-            }
-            else
-            {
-                return false;
+
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         public void DecompressData(ref Huffman.HuffmanData data, ref List<KeyValuePair<byte, List<bool>>> huffman)
         {
-            BitArray compressed = new BitArray(data.compressedData);
-            List<bool> l_b = new bool[data.compressedData.Length*8].ToList();
-
+            BitArray ba = new BitArray(data.compressedData);
+            bool[] tabBools = new bool[data.compressedData.Length*8];
+            ba.CopyTo(tabBools, 0);
+            List<bool> l_b = tabBools.ToList();
             List<bool> l = new List<bool>();
             
             byte[] decompressed = new byte[data.sizeOfUncompressedData];
@@ -261,15 +249,18 @@ namespace PlugInDotNet
 
             foreach (bool b in l_b)
             {
-                l.Add(b);
-
-                foreach (KeyValuePair<byte, List<bool>> kvp in huffman)
+                if (i < decompressed.Length)
                 {
-                    if (AreEquals(kvp.Value, l))
+                    l.Add(b);
+                    
+                    foreach (KeyValuePair<byte, List<bool>> kvp in huffman)
                     {
-                        decompressed[i] = kvp.Key;
-                        i++;
-                        l.Clear();
+                        if (AreEquals(kvp.Value, l))
+                        {
+                            decompressed[i] = kvp.Key;
+                            i++;
+                            l.Clear();
+                        }
                     }
                 }
             }
