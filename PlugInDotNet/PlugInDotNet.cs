@@ -12,8 +12,6 @@ namespace PlugInDotNet
     {
         public bool Compress(ref Huffman.HuffmanData data)
         {
-            bool r = false;
-
             data.sizeOfUncompressedData = data.uncompressedData.Length;
             data.frequency = new List<KeyValuePair<byte, int>>();
             Dictionary<byte, int> dictionary = new Dictionary<byte, int>();
@@ -41,28 +39,54 @@ namespace PlugInDotNet
 
             GetTree(ref nodes);
 
-            /*foreach (Node n in nodes)
-            {
-                CheckSaMere(n);
-            }*/
+            List<KeyValuePair<byte, List<bool>>> l_kvp = new List<KeyValuePair<byte, List<bool>>>();
 
-            List<KeyValuePair<byte, string>> l_kvp = new List<KeyValuePair<byte, string>>();
+            GetHuffmanCode(nodes[0], ref l_kvp, new List<bool>());
 
-            GetHuffmanCode("", nodes[0], ref l_kvp);
-
-            foreach (KeyValuePair<byte, string> kvp in l_kvp)
+            /*foreach (KeyValuePair<byte, List<bool>> kvp in l_kvp)
             {
                 byte[] tabByte = { kvp.Key };
-                Console.Write("(" + kvp.Value + " - " + Encoding.ASCII.GetString(tabByte) + ")");
+                List<bool> listBool = kvp.Value;
+                string s = "";
+                foreach (bool b in listBool)
+                {
+                    if (b)
+                    {
+                        s = s + "1";
+                    }
+                    else
+                    {
+                        s = s + "0";
+                    }
+                }
+                Console.Write("(" + s + " - " + Encoding.ASCII.GetString(tabByte) + ")");
             }
-            Console.WriteLine("");
+            Console.WriteLine("");*/
 
-            return r;
+            CompressData(ref data, ref l_kvp);
+
+            return true;
         }
 
         public bool Decompress(ref Huffman.HuffmanData data)
         {
-            return false;
+            List<Node> nodes = new List<Node>();
+
+            // Transfert du dictionary dans le tableau de KeyValuePair
+            foreach (KeyValuePair<byte, int> kvp in data.frequency)
+            {
+                nodes.Add(new Occurence(new KeyValuePair<byte, int>(kvp.Key, kvp.Value)));
+            }
+
+            GetTree(ref nodes);
+
+            List<KeyValuePair<byte, List<bool>>> l_kvp = new List<KeyValuePair<byte, List<bool>>>();
+
+            GetHuffmanCode(nodes[0], ref l_kvp, new List<bool>());
+
+            DecompressData(ref data, ref l_kvp);
+
+            return true;
         }
 
         public string PluginName {
@@ -96,16 +120,55 @@ namespace PlugInDotNet
             if (nodes.Count > 1)
             {
                 // Tri tableau
-                SortList(ref nodes);
+                //SortList(ref nodes);
+
+                int i = 2;
+                int i1;
+                int i2;
+
+                if(nodes[0].GetValue() < nodes[1].GetValue())
+                {
+                    i1 = 0;
+                    i2 = 1;
+                }
+                else
+                {
+                    i1 = 1;
+                    i2 = 0;
+                }
+
+                while (i < nodes.Count)
+                {
+                    if (nodes[i].GetValue() < nodes[i1].GetValue())
+                    {
+                        i2 = i1;
+                        i1 = i;
+                    }
+                    else if (nodes[i].GetValue() < nodes[i2].GetValue())
+                    {
+                        i2 = i;
+                    }
+
+                    i++;
+                }
 
                 // Création d'une nouvelle branche (sum)
                 Sum newNode = new Sum();
+
                 // On ajoute les deux liens à cette nouvelle branche
-                newNode.Add(nodes[0]);
-                newNode.Add(nodes[1]);
+                newNode.Add(nodes[i1]);
+                newNode.Add(nodes[i2]);
                 // On supprime de la liste les deux liens 
-                nodes.Remove(nodes[0]);
-                nodes.Remove(nodes[0]);
+                if (i1 < i2)
+                {
+                    nodes.Remove(nodes[i2]);
+                    nodes.Remove(nodes[i1]);
+                }
+                else
+                {
+                    nodes.Remove(nodes[i1]);
+                    nodes.Remove(nodes[i2]);
+                }
                 // On ajoute la nouvelle branche
                 nodes.Add(newNode);
 
@@ -113,40 +176,106 @@ namespace PlugInDotNet
                 GetTree(ref nodes);
             }
         }
-        
-        public void CheckSaMere(Node node)
-        {
-            if (Object.ReferenceEquals(node.GetType(), typeof(Occurence)))
-            {
-                Console.WriteLine(node.GetValue());
-            }
-            else
-            {
-                ArrayList al = ((Sum)node).GetNodes();
-                CheckSaMere(((Node)al[0]));
-                CheckSaMere(((Node)al[1]));
-            }
-        }
 
-        public /*List<KeyValuePair<byte, byte>>*/void GetHuffmanCode(string way, Node node, ref List<KeyValuePair<byte, string>> l_kvp)
+        public void GetHuffmanCode(Node node, ref List<KeyValuePair<byte, List<bool>>> l_kvp, List<bool> way)
         {
 
             if (Object.ReferenceEquals(node.GetType(), typeof(Sum)))
             {
                 ArrayList al = ((Sum)node).GetNodes();
-                GetHuffmanCode(way + "0", ((Node)al[0]), ref l_kvp);
-                GetHuffmanCode(way + "1", ((Node)al[1]), ref l_kvp);
+
+                List<bool> l1 = new List<bool>(way);
+                l1.Add(false);
+                GetHuffmanCode(((Node)al[0]), ref l_kvp, l1);
+
+                List<bool> l2 = new List<bool>(way);
+                l2.Add(true);
+                GetHuffmanCode(((Node)al[1]), ref l_kvp, l2);
 
             }
             else
             {
                 Occurence o = (Occurence) node;
-                l_kvp.Add(new KeyValuePair<byte, string>(o.GetKVP().Key, way));
+                l_kvp.Add(new KeyValuePair<byte, List<bool>>(o.GetKVP().Key, way));
             }
-            /*List<KeyValuePair<byte, byte>> l_kvp = new List<KeyValuePair<byte, byte>>();
-            byte b = ;
+        }
 
-            return l_kvp;*/
+        public List<bool> GetValueOfKeyInList(ref List<KeyValuePair<byte, List<bool>>> huffman, byte key)
+        {
+            foreach (KeyValuePair<byte, List<bool>> kvp in huffman)
+            {
+                if (kvp.Key == key)
+                {
+                    return kvp.Value;
+                }
+            }
+
+            return new List<bool>();
+        }
+
+        public void CompressData(ref Huffman.HuffmanData data, ref List<KeyValuePair<byte, List<bool>>> huffman)
+        {
+            BitArray compressed;
+            List<bool> l = new List<bool>();
+
+            foreach (byte b in data.uncompressedData)
+            {
+                l.AddRange(GetValueOfKeyInList(ref huffman, b));
+            }
+
+            compressed = new BitArray(l.ToArray());
+            int nb = l.Count / 8 + 1;
+            data.compressedData = new byte[nb];
+            compressed.CopyTo(data.compressedData, 0);
+        }
+
+        public bool AreEquals(List<bool> l1, List<bool> l2)
+        {
+            if (l1.Count == l2.Count)
+            {
+                for (int i = 0; i < l1.Count; i++)
+                {
+                    if (l1[i] != l2[i])
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public void DecompressData(ref Huffman.HuffmanData data, ref List<KeyValuePair<byte, List<bool>>> huffman)
+        {
+            BitArray compressed = new BitArray(data.compressedData);
+            List<bool> l_b = new bool[data.compressedData.Length*8].ToList();
+
+            List<bool> l = new List<bool>();
+            
+            byte[] decompressed = new byte[data.sizeOfUncompressedData];
+            int i = 0;
+
+            foreach (bool b in l_b)
+            {
+                l.Add(b);
+
+                foreach (KeyValuePair<byte, List<bool>> kvp in huffman)
+                {
+                    if (AreEquals(kvp.Value, l))
+                    {
+                        decompressed[i] = kvp.Key;
+                        i++;
+                        l.Clear();
+                    }
+                }
+            }
+
+            
+            data.uncompressedData = decompressed;
         }
     }
 }

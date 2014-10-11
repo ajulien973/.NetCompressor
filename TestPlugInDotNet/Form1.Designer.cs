@@ -59,7 +59,6 @@
             // 
             // rtb_for_decompression
             // 
-            this.rtb_for_decompression.Enabled = false;
             this.rtb_for_decompression.Location = new System.Drawing.Point(12, 265);
             this.rtb_for_decompression.Name = "rtb_for_decompression";
             this.rtb_for_decompression.Size = new System.Drawing.Size(695, 128);
@@ -78,7 +77,6 @@
             // 
             // rtb_for_compressed
             // 
-            this.rtb_for_compressed.Enabled = false;
             this.rtb_for_compressed.Location = new System.Drawing.Point(159, 182);
             this.rtb_for_compressed.Name = "rtb_for_compressed";
             this.rtb_for_compressed.Size = new System.Drawing.Size(548, 77);

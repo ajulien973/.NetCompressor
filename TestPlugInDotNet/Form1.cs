@@ -27,7 +27,7 @@ namespace TestPlugInDotNet
         {
             this.datas.uncompressedData = Encoding.ASCII.GetBytes(rtb_for_compression.Text);
             this.p.Compress(ref datas);
-            //rtb_for_compressed.Text = Encoding.ASCII.GetString(datas.compressedData);
+            rtb_for_compressed.Text = Encoding.ASCII.GetString(datas.compressedData);
             /*
             System.Console.WriteLine(Encoding.ASCII.GetString(datas.uncompressedData));
 
