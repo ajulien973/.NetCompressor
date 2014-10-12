@@ -132,7 +132,6 @@
             // 
             // rtb_for_compressed
             // 
-            this.rtb_for_compressed.Enabled = false;
             this.rtb_for_compressed.Location = new System.Drawing.Point(143, 145);
             this.rtb_for_compressed.Name = "rtb_for_compressed";
             this.rtb_for_compressed.ReadOnly = true;
@@ -152,7 +151,6 @@
             // 
             // rtb_for_decompression
             // 
-            this.rtb_for_decompression.Enabled = false;
             this.rtb_for_decompression.Location = new System.Drawing.Point(6, 245);
             this.rtb_for_decompression.Name = "rtb_for_decompression";
             this.rtb_for_decompression.ReadOnly = true;
