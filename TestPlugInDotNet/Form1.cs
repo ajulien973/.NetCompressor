@@ -26,23 +26,30 @@ namespace TestPlugInDotNet
         private void b_for_compression_Click(object sender, EventArgs e)
         {
             this.datas.uncompressedData = Encoding.ASCII.GetBytes(rtb_for_compression.Text);
+            l_size_compression.Text = this.datas.uncompressedData.Length.ToString() + " octets";
             this.p.Compress(ref datas);
-            rtb_for_compressed.Text = Encoding.ASCII.GetString(datas.compressedData);
-            /*
-            System.Console.WriteLine(Encoding.ASCII.GetString(datas.uncompressedData));
+            rtb_for_compressed.Text = Encoding.ASCII.GetString(this.datas.compressedData);
+            l_size_compressed.Text = this.datas.compressedData.Length.ToString() + " octets";
 
+            lb_frequency.Items.Clear();
             foreach (KeyValuePair<byte, int> kvp in datas.frequency)
             {
-                byte[] tabByte = { kvp.Key };
-                System.Console.WriteLine(Encoding.ASCII.GetString(tabByte) + " - " + Convert.ToString(kvp.Value));
-            }*/
-            // ffffffaaaaaaaaaabbbbbbbbbbddddddddddddddddccccccccccccccccccccccccceeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+                byte[] b = { kvp.Key };
+                lb_frequency.Items.Add("Caractère : " + Encoding.ASCII.GetString(b));
+
+                string binary = Convert.ToString(kvp.Key, 2);
+                lb_frequency.Items.Add("Caractère ASCII : " + binary);
+
+                lb_frequency.Items.Add("Nombre d'occurences : " + kvp.Value.ToString());
+                lb_frequency.Items.Add("");
+            }
         }
 
         private void b_for_decompression_Click(object sender, EventArgs e)
         {
             this.p.Decompress(ref datas);
-            rtb_for_decompression.Text = Encoding.ASCII.GetString(this.datas.uncompressedData);            
+            rtb_for_decompression.Text = Encoding.ASCII.GetString(this.datas.uncompressedData);
+            l_size_decompression.Text = this.datas.uncompressedData.Length.ToString() + " octets";           
         }
     }
 }
